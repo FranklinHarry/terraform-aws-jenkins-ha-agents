@@ -3,7 +3,7 @@ variable "admin_password" {
   type        = string
 }
 
-variable "agent_lt_version" {
+variable "jenkins_agent_version" {
   description = "The version of the agent launch template to use. Only use if you need to programatically select an older version of the launch template. Not recommended to change."
   type        = string
   default     = "$Latest"
@@ -145,7 +145,7 @@ variable "key_name" {
   default     = null
 }
 
-variable "master_lt_version" {
+variable "jenkins_master_version" {
   description = "The version of the master launch template to use. Only use if you need to programatically select an older version of the launch template. Not recommended to change."
   type        = string
   default     = "$Latest"

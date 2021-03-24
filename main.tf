@@ -129,11 +129,11 @@ resource "aws_cloudwatch_metric_alarm" "available_executors_low" {
   threshold           = var.agent_min * var.executors / 2
 
   dimensions = {
-    "AutoScalingGroupName" = aws_autoscaling_group.agent_asg.name
+    "AutoScalingGroupName" = aws_autoscaling_group.jenkins_agent_asg.name
   }
 
   actions_enabled = true
-  alarm_actions   = [aws_autoscaling_policy.agent_scale_up_policy.arn]
+  alarm_actions   = [aws_autoscaling_policy.jenkins_agent_scale_up_policy.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "idle_executors_high" {
@@ -148,14 +148,14 @@ resource "aws_cloudwatch_metric_alarm" "idle_executors_high" {
   threshold           = 0
 
   dimensions = {
-    "AutoScalingGroupName" = aws_autoscaling_group.agent_asg.name
+    "AutoScalingGroupName" = aws_autoscaling_group.jenkins_agent_asg.name
   }
 
   actions_enabled = true
-  alarm_actions   = [aws_autoscaling_policy.agent_scale_down_policy.arn]
+  alarm_actions   = [aws_autoscaling_policy.jenkins_agent_scale_down_policy.arn]
 }
 
-resource "aws_cloudwatch_metric_alarm" "agent_cpu_alarm" {
+resource "aws_cloudwatch_metric_alarm" "jenkins_agent_cpu_alarm" {
   alarm_name          = "${var.application}-agent-cpu-alarm"
   alarm_description   = "Alarm if agent CPU is too high."
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -167,15 +167,15 @@ resource "aws_cloudwatch_metric_alarm" "agent_cpu_alarm" {
   threshold           = 75
 
   dimensions = {
-    "AutoScalingGroupName" = aws_autoscaling_group.agent_asg.name
+    "AutoScalingGroupName" = aws_autoscaling_group.jenkins_agent_asg.name
   }
 
   actions_enabled = true
-  alarm_actions   = [aws_autoscaling_policy.agent_scale_up_policy.arn]
+  alarm_actions   = [aws_autoscaling_policy.jenkins_agent_scale_up_policy.arn]
 }
 
-resource "aws_autoscaling_group" "agent_asg" {
-  depends_on = [aws_autoscaling_group.master_asg]
+resource "aws_autoscaling_group" "jenkins_agent_asg" {
+  depends_on = [aws_autoscaling_group.jenkins_master_asg]
 
   max_size = var.agent_max
   min_size = var.agent_min
@@ -197,8 +197,8 @@ resource "aws_autoscaling_group" "agent_asg" {
 
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.agent_lt.id
-        version            = var.agent_lt_version
+        launch_template_id = aws_launch_template.jenkins_agent.id
+        version            = var.jenkins_agent_version
       }
 
       dynamic "override" {
@@ -221,7 +221,7 @@ resource "aws_autoscaling_group" "agent_asg" {
   }
 }
 
-resource "aws_launch_template" "agent_lt" {
+resource "aws_launch_template" "jenkins_agent" {
   name        = "${var.application}-agent-lt"
   description = "${var.application} agent launch template"
 
@@ -402,7 +402,7 @@ data "template_cloudinit_config" "agent_init" {
 
   part {
     content_type = "text/cloud-config"
-    content      = data.template_file.agent_runcmd.rendered
+    content      = data.template_file.jenkins_agent_runcmd.rendered
   }
 
   part {
@@ -429,13 +429,13 @@ data "template_file" "agent_write_files" {
   }
 }
 
-data "template_file" "agent_runcmd" {
+data "template_file" "jenkins_agent_runcmd" {
   template = file("${path.module}/init/agent-runcmd.cfg")
 
   vars = {
     api_ssm_parameter = "${var.ssm_parameter}${var.api_ssm_parameter}"
     aws_region        = var.region
-    master_asg        = aws_autoscaling_group.master_asg.name
+    jenkins_master_asg        = aws_autoscaling_group.jenkins_master_asg.name
     swarm_version     = var.swarm_version
   }
 }
@@ -444,23 +444,23 @@ data "template_file" "agent_end" {
   template = file("${path.module}/init/agent-end.cfg")
 }
 
-resource "aws_autoscaling_policy" "agent_scale_up_policy" {
+resource "aws_autoscaling_policy" "jenkins_agent_scale_up_policy" {
   name                   = "${var.application}-agent-up-policy"
   scaling_adjustment     = var.scale_up_number
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 150
-  autoscaling_group_name = aws_autoscaling_group.agent_asg.name
+  autoscaling_group_name = aws_autoscaling_group.jenkins_agent_asg.name
 }
 
-resource "aws_autoscaling_policy" "agent_scale_down_policy" {
+resource "aws_autoscaling_policy" "jenkins_agent_scale_down_policy" {
   name                   = "${var.application}-agent-down-policy"
   scaling_adjustment     = var.scale_down_number
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 180
-  autoscaling_group_name = aws_autoscaling_group.agent_asg.name
+  autoscaling_group_name = aws_autoscaling_group.jenkins_agent_asg.name
 }
 
-resource "aws_autoscaling_group" "master_asg" {
+resource "aws_autoscaling_group" "jenkins_master_asg" {
   depends_on = [aws_efs_mount_target.mount_targets]
 
   max_size = 1
@@ -473,7 +473,7 @@ resource "aws_autoscaling_group" "master_asg" {
 
   vpc_zone_identifier = data.aws_subnet_ids.private.ids
 
-  target_group_arns = [aws_lb_target_group.master_tg.arn]
+  target_group_arns = [aws_lb_target_group.jenkins_master_tg.arn]
 
   mixed_instances_policy {
 
@@ -483,8 +483,8 @@ resource "aws_autoscaling_group" "master_asg" {
 
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.master_lt.id
-        version            = var.master_lt_version
+        launch_template_id = aws_launch_template.jenkins_master.id
+        version            = var.jenkins_master_version
       }
 
       override {
@@ -504,12 +504,12 @@ resource "aws_autoscaling_group" "master_asg" {
   }
 }
 
-resource "aws_launch_template" "master_lt" {
+resource "aws_launch_template" "jenkins_master" {
   name        = "${var.application}-master-lt"
   description = "${var.application} master launch template"
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.master_ip.name
+    name = aws_iam_instance_profile.jenkins_master_ip.name
   }
 
   credit_specification {
@@ -593,7 +593,7 @@ resource "aws_security_group" "jenkins_master_sg" {
   tags = merge(var.tags, { "Name" = "${var.application}-master-sg" })
 }
 
-resource "aws_iam_instance_profile" "master_ip" {
+resource "aws_iam_instance_profile" "jenkins_master_ip" {
   name = "${var.application}-master-ip"
   path = "/"
   role = aws_iam_role.jenkins_master_iam_role.name
@@ -739,7 +739,7 @@ data "template_file" "master_runcmd" {
     admin_password  = var.admin_password
     aws_region      = var.region
     jenkins_version = var.jenkins_version
-    master_storage  = aws_efs_file_system.master_efs.id
+    jenkins_master_storage  = aws_efs_file_system.jenkins_master_efs.id
   }
 }
 
@@ -747,7 +747,7 @@ data "template_file" "master_end" {
   template = file("${path.module}/init/master-end.cfg")
 }
 
-resource "aws_efs_file_system" "master_efs" {
+resource "aws_efs_file_system" "jenkins_master_efs" {
   creation_token   = "${var.application}-master-efs"
   encrypted        = true
   performance_mode = "generalPurpose"
@@ -761,12 +761,12 @@ resource "aws_efs_file_system" "master_efs" {
 resource "aws_efs_mount_target" "mount_targets" {
   for_each = toset(data.aws_subnet_ids.private.ids)
 
-  file_system_id  = aws_efs_file_system.master_efs.id
+  file_system_id  = aws_efs_file_system.jenkins_master_efs.id
   subnet_id       = each.key
-  security_groups = [aws_security_group.master_storage_sg.id]
+  security_groups = [aws_security_group.jenkins_master_storage_sg.id]
 }
 
-resource "aws_security_group" "master_storage_sg" {
+resource "aws_security_group" "jenkins_master_storage_sg" {
   name        = "${var.application}-master-storage-sg"
   description = "${var.application}-master-storage-sg"
   vpc_id      = data.aws_vpc.vpc.id
@@ -789,7 +789,7 @@ resource "aws_security_group" "master_storage_sg" {
   tags = merge(var.tags, { "Name" = "${var.application}-master-storage-sg" })
 }
 
-resource "aws_lb_target_group" "master_tg" {
+resource "aws_lb_target_group" "jenkins_master_tg" {
   name = "${var.application}-master-tg"
 
   port                 = 8080
@@ -809,7 +809,7 @@ resource "aws_lb_target_group" "master_tg" {
   tags = merge(var.tags, { "Name" = "${var.application}-master-tg" })
 }
 
-resource "aws_lb_listener" "master_lb_listener" {
+resource "aws_lb_listener" "jenkins_master_lb_listener" {
   load_balancer_arn = aws_lb.lb.arn
   port              = 443
   protocol          = "HTTPS"
@@ -818,11 +818,11 @@ resource "aws_lb_listener" "master_lb_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.master_tg.arn
+    target_group_arn = aws_lb_target_group.jenkins_master_tg.arn
   }
 }
 
-resource "aws_lb_listener" "master_http_listener" {
+resource "aws_lb_listener" "jenkins_master_http_listener" {
   load_balancer_arn = aws_lb.lb.arn
   port              = 80
   protocol          = "HTTP"
