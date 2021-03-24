@@ -1,4 +1,4 @@
-![logo](https://github.com/neiman-marcus/terraform-aws-jenkins-ha-agents/raw/master/images/logo.png 'Neiman Marcus')
+
 
 # terraform-aws-jenkins-ha-agents
 

@@ -856,4 +856,3 @@ resource "aws_ssm_parameter" "admin_password" {
   value       = var.admin_password
   overwrite   = true
 }
-
