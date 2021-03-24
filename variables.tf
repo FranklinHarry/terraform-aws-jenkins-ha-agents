@@ -12,7 +12,7 @@ variable "agent_lt_version" {
 variable "agent_max" {
   description = "The maximum number of agents to run in the agent ASG."
   type        = number
-  default     = 6
+  default     = 3
 }
 
 variable "agent_min" {
@@ -65,7 +65,9 @@ variable "bastion_sg_name" {
 variable "cidr_ingress" {
   description = "IP address cidr ranges allowed access to the LB."
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default = [
+    "0.0.0.0/0",
+  ]
 }
 
 variable "custom_plugins" {
@@ -124,7 +126,11 @@ variable "extra_master_userdata_merge" {
 variable "instance_type" {
   description = "The type of instances to use for both ASG's. The first value in the list will be set as the master instance."
   type        = list(string)
-  default     = ["t3a.xlarge", "t3.xlarge", "t2.xlarge"]
+  default = [
+    "t3a.xlarge",
+    "t3.xlarge",
+    "t2.xlarge",
+  ]
 }
 
 variable "jenkins_version" {
@@ -180,7 +186,7 @@ variable "retention_in_days" {
 variable "scale_down_number" {
   description = "Number of agents to destroy when scaling down."
   type        = number
-  default     = -1
+  default     = 1
 }
 
 variable "scale_up_number" {

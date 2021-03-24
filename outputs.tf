@@ -1,10 +1,10 @@
-output "agent_asg" {
-  description = "The name of the agent asg. Use for adding to addition outside resources."
+output "jenkins_agent_asg" {
+  description = "The name of the jenkins agents asg."
   value       = aws_autoscaling_group.agent_asg.name
 }
 
-output "agent_iam_role" {
-  description = "The agent IAM role attributes. Use for attaching additional iam policies."
+output "jenkins_agents_iam_role" {
+  description = "The jenkins agent IAM role attributes"
   value       = aws_iam_role.agent_iam_role.name
 }
 
