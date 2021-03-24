@@ -346,7 +346,7 @@ resource "aws_iam_role_policy" "agent_inline_policy" {
         "logs:DescribeLogStreams"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_cloudwatch_log_group.agent_logs.arn}:*"
+      "Resource": "${aws_cloudwatch_log_group.jenkins_agent_logs.arn}:*"
     },
     {
       "Action": [
@@ -384,7 +384,7 @@ resource "aws_iam_role_policy_attachment" "agent_policy_attachment" {
   policy_arn = data.aws_iam_policy.ssm_policy.arn
 }
 
-resource "aws_cloudwatch_log_group" "agent_logs" {
+resource "aws_cloudwatch_log_group" "jenkins_agent_logs" {
   name              = "${var.application}-agent-logs"
   retention_in_days = var.retention_in_days
   tags              = merge(var.tags, { "Name" = "${var.application}-agent-logs" })
@@ -422,7 +422,7 @@ data "template_file" "agent_write_files" {
   template = file("${path.module}/init/agent-write-files.cfg")
 
   vars = {
-    agent_logs    = aws_cloudwatch_log_group.agent_logs.name
+    jenkins_agent_logs    = aws_cloudwatch_log_group.jenkins_agent_logs.name
     aws_region    = var.region
     executors     = var.executors
     swarm_version = var.swarm_version
