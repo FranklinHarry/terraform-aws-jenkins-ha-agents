@@ -565,7 +565,7 @@ resource "aws_launch_template" "master_lt" {
   tags = merge(var.tags, { "Name" = "${var.application}-master-lt" })
 }
 
-resource "aws_security_group" "master_sg" {
+resource "aws_security_group" "jenkins_master_sg" {
   name        = "${var.application}-master-sg"
   description = "${var.application}-master-sg"
   vpc_id      = data.aws_vpc.vpc.id
