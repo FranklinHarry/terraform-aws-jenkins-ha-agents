@@ -550,7 +550,7 @@ resource "aws_launch_template" "master_lt" {
     enabled = true
   }
 
-  vpc_security_group_ids = [aws_security_group.master_sg.id]
+  vpc_security_group_ids = [aws_security_group.jenkins_master_sg.id]
 
   tag_specifications {
     resource_type = "instance"
@@ -786,7 +786,7 @@ resource "aws_security_group" "master_storage_sg" {
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
-    security_groups = [aws_security_group.master_sg.id]
+    security_groups = [aws_security_group.jenkins_master_sg.id]
     self            = false
   }
 
