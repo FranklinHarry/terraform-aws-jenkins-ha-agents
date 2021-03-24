@@ -267,7 +267,7 @@ resource "aws_launch_template" "agent_lt" {
     enabled = true
   }
 
-  vpc_security_group_ids = [aws_security_group.agent_sg.id]
+  vpc_security_group_ids = [aws_security_group.jenkins_agent_sg.id]
 
   tag_specifications {
     resource_type = "instance"
@@ -282,7 +282,7 @@ resource "aws_launch_template" "agent_lt" {
   tags = merge(var.tags, { "Name" = "${var.application}-agent-lt" })
 }
 
-resource "aws_security_group" "agent_sg" {
+resource "aws_security_group" "jenkins_agent_sg" {
   name        = "${var.application}-agent-sg"
   description = "${var.application}-agent-sg"
   vpc_id      = data.aws_vpc.vpc.id
@@ -574,7 +574,7 @@ resource "aws_security_group" "master_sg" {
     from_port       = 8080
     to_port         = 8080
     protocol        = "tcp"
-    security_groups = [aws_security_group.lb_sg.id, aws_security_group.agent_sg.id]
+    security_groups = [aws_security_group.lb_sg.id, aws_security_group.jenkins_agent_sg.id]
     self            = false
   }
 
@@ -590,7 +590,7 @@ resource "aws_security_group" "master_sg" {
     from_port       = 49817
     to_port         = 49817
     protocol        = "tcp"
-    security_groups = [aws_security_group.agent_sg.id]
+    security_groups = [aws_security_group.jenkins_agent_sg.id]
     self            = false
   }
 
