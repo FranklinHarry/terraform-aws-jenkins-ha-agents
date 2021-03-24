@@ -419,7 +419,7 @@ data "template_cloudinit_config" "agent_init" {
 }
 
 data "template_file" "agent_write_files" {
-  template = file("${path.module}/init/agent-write-files.cfg")
+  template = file("${path.module}/config/jenkins-agent/agent-write-files.cfg")
 
   vars = {
     jenkins_agent_logs    = aws_cloudwatch_log_group.jenkins_agent_logs.name
@@ -430,7 +430,7 @@ data "template_file" "agent_write_files" {
 }
 
 data "template_file" "jenkins_agent_runcmd" {
-  template = file("${path.module}/init/agent-runcmd.cfg")
+  template = file("${path.module}/config/jenkins-agent/agent-runcmd.cfg")
 
   vars = {
     api_ssm_parameter = "${var.ssm_parameter}${var.api_ssm_parameter}"
@@ -441,7 +441,7 @@ data "template_file" "jenkins_agent_runcmd" {
 }
 
 data "template_file" "agent_end" {
-  template = file("${path.module}/init/agent-end.cfg")
+  template = file("${path.module}/config/jenkins-agent/agent-end.cfg")
 }
 
 resource "aws_autoscaling_policy" "jenkins_agent_scale_up_policy" {
@@ -621,7 +621,7 @@ EOF
   tags = merge(var.tags, { "Name" = "${var.application}-master-iam-role" })
 }
 
-resource "aws_iam_role_policy" "master_inline_policy" {
+resource "aws_iam_role_policy" "jenkins_master_inline_policy" {
   name = "${var.application}-master-inline-policy"
   role = aws_iam_role.jenkins_master_iam_role.id
 
@@ -673,7 +673,7 @@ resource "aws_iam_role_policy" "master_inline_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "master_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "jenkins_master_policy_attachment" {
   role       = aws_iam_role.jenkins_master_iam_role.name
   policy_arn = data.aws_iam_policy.ssm_policy.arn
 }
@@ -691,7 +691,7 @@ data "template_cloudinit_config" "master_init" {
   part {
     filename     = "master.cfg"
     content_type = "text/cloud-config"
-    content      = data.template_file.master_write_files.rendered
+    content      = data.template_file.jenkins_master_write_files.rendered
   }
 
   part {
@@ -718,8 +718,8 @@ data "template_cloudinit_config" "master_init" {
   }
 }
 
-data "template_file" "master_write_files" {
-  template = file("${path.module}/init/master-write-files.cfg")
+data "template_file" "jenkins_master_write_files" {
+  template = file("${path.module}/config/jenkins-master/master-write-files.cfg")
 
   vars = {
     admin_password           = var.admin_password
@@ -733,7 +733,7 @@ data "template_file" "master_write_files" {
 }
 
 data "template_file" "master_runcmd" {
-  template = file("${path.module}/init/master-runcmd.cfg")
+  template = file("${path.module}/config/jenkins-master/master-runcmd.cfg")
 
   vars = {
     admin_password  = var.admin_password
@@ -744,7 +744,7 @@ data "template_file" "master_runcmd" {
 }
 
 data "template_file" "master_end" {
-  template = file("${path.module}/init/master-end.cfg")
+  template = file("${path.module}/config/jenkins-master/master-end.cfg")
 }
 
 resource "aws_efs_file_system" "jenkins_master_efs" {
