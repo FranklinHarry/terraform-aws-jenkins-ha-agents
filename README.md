@@ -221,9 +221,9 @@ runcmd:
 | Name            | Description                                                               |
 | --------------- | ------------------------------------------------------------------------- |
 | agent_asg_name  | The name of the agent asg. Use for adding to addition outside resources.  |
-| agent_iam_role  | The agent IAM role attributes. Use for attaching additional iam policies. |
+| jenkins_agent_iam_role  | The agent IAM role attributes. Use for attaching additional iam policies. |
 | master_asg_name | The name of the master asg. Use for adding to addition outside resources. |
-| master_iam_role | The master IAM role name. Use for attaching additional iam policies.      |
+| jenkins_master_iam_role | The master IAM role name. Use for attaching additional iam policies.      |
 | r53_record_fqdn | The fqdn of the route 53 record.                                          |
 
 ## Known Issues/Limitations

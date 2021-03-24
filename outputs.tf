@@ -5,7 +5,7 @@ output "jenkins_agent_asg" {
 
 output "jenkins_agents_iam_role" {
   description = "The jenkins agent IAM role attributes"
-  value       = aws_iam_role.agent_iam_role.name
+  value       = aws_iam_role.jenkins_agent_iam_role.name
 }
 
 output "lb_dns_name" {
@@ -23,9 +23,9 @@ output "master_asg" {
   value       = aws_autoscaling_group.master_asg.name
 }
 
-output "master_iam_role" {
+output "jenkins_master_iam_role" {
   description = "The master IAM role name. Use for attaching additional iam policies."
-  value       = aws_iam_role.master_iam_role.name
+  value       = aws_iam_role.jenkins_master_iam_role.name
 }
 
 output "r53_record" {

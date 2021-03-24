@@ -1,16 +1,5 @@
 terraform {
-  required_version = ">= 0.13"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 2.25"
-    }
-    template = {
-      source  = "hashicorp/template"
-      version = ">= 2.1"
-    }
-  }
+  required_version = ">= 0.14"
 }
 
 locals {
@@ -308,10 +297,10 @@ resource "aws_security_group" "jenkins_agent_sg" {
 resource "aws_iam_instance_profile" "agent_ip" {
   name = "${var.application}-agent-ip"
   path = "/"
-  role = aws_iam_role.agent_iam_role.name
+  role = aws_iam_role.jenkins_agent_iam_role.name
 }
 
-resource "aws_iam_role" "agent_iam_role" {
+resource "aws_iam_role" "jenkins_agent_iam_role" {
   name = "${var.application}-agent-iam-role"
   path = "/"
 
@@ -335,7 +324,7 @@ EOF
 
 resource "aws_iam_role_policy" "agent_inline_policy" {
   name = "${var.application}-agent-inline-policy"
-  role = aws_iam_role.agent_iam_role.id
+  role = aws_iam_role.jenkins_agent_iam_role.id
 
   policy = <<EOF
 {
@@ -391,7 +380,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "agent_policy_attachment" {
-  role       = aws_iam_role.agent_iam_role.name
+  role       = aws_iam_role.jenkins_agent_iam_role.name
   policy_arn = data.aws_iam_policy.ssm_policy.arn
 }
 
@@ -607,10 +596,10 @@ resource "aws_security_group" "jenkins_master_sg" {
 resource "aws_iam_instance_profile" "master_ip" {
   name = "${var.application}-master-ip"
   path = "/"
-  role = aws_iam_role.master_iam_role.name
+  role = aws_iam_role.jenkins_master_iam_role.name
 }
 
-resource "aws_iam_role" "master_iam_role" {
+resource "aws_iam_role" "jenkins_master_iam_role" {
   name = "${var.application}-master-iam-role"
   path = "/"
 
@@ -634,7 +623,7 @@ EOF
 
 resource "aws_iam_role_policy" "master_inline_policy" {
   name = "${var.application}-master-inline-policy"
-  role = aws_iam_role.master_iam_role.id
+  role = aws_iam_role.jenkins_master_iam_role.id
 
   policy = <<EOF
 {
@@ -685,7 +674,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "master_policy_attachment" {
-  role       = aws_iam_role.master_iam_role.name
+  role       = aws_iam_role.jenkins_master_iam_role.name
   policy_arn = data.aws_iam_policy.ssm_policy.arn
 }
 
