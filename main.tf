@@ -419,7 +419,7 @@ data "template_cloudinit_config" "agent_init" {
 }
 
 data "template_file" "agent_write_files" {
-  template = file("${path.module}/config/jenkins-agent/agent-write-files.cfg")
+  template = file("${path.module}/config/jenkins-agent/jenkins-agent-attachment.cfg")
 
   vars = {
     jenkins_agent_logs    = aws_cloudwatch_log_group.jenkins_agent_logs.name
@@ -430,7 +430,7 @@ data "template_file" "agent_write_files" {
 }
 
 data "template_file" "jenkins_agent_runcmd" {
-  template = file("${path.module}/config/jenkins-agent/agent-runcmd.cfg")
+  template = file("${path.module}/config/jenkins-agent/jenkins-agent-attachment.cfg")
 
   vars = {
     api_ssm_parameter = "${var.ssm_parameter}${var.api_ssm_parameter}"
@@ -441,7 +441,7 @@ data "template_file" "jenkins_agent_runcmd" {
 }
 
 data "template_file" "agent_end" {
-  template = file("${path.module}/config/jenkins-agent/agent-end.cfg")
+  template = file("${path.module}/config/jenkins-agent/jenkins-agent-init.cfg")
 }
 
 resource "aws_autoscaling_policy" "jenkins_agent_scale_up_policy" {
@@ -719,7 +719,7 @@ data "template_cloudinit_config" "master_init" {
 }
 
 data "template_file" "jenkins_master_write_files" {
-  template = file("${path.module}/config/jenkins-master/master-write-files.cfg")
+  template = file("${path.module}/config/jenkins-master/jenkins-master-setup-files.cfg")
 
   vars = {
     admin_password           = var.admin_password
@@ -733,7 +733,7 @@ data "template_file" "jenkins_master_write_files" {
 }
 
 data "template_file" "master_runcmd" {
-  template = file("${path.module}/config/jenkins-master/master-runcmd.cfg")
+  template = file("${path.module}/config/jenkins-master/jenkins-master-init.cfg")
 
   vars = {
     admin_password  = var.admin_password
@@ -744,7 +744,7 @@ data "template_file" "master_runcmd" {
 }
 
 data "template_file" "master_end" {
-  template = file("${path.module}/config/jenkins-master/master-end.cfg")
+  template = file("${path.module}/config/jenkins-master/jenkins-master-start.cfg")
 }
 
 resource "aws_efs_file_system" "jenkins_master_efs" {
